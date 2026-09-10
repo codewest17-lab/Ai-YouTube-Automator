@@ -1,0 +1,21 @@
+{
+  "name": "ajet-youtube-uploader",
+  "version": "1.0.0",
+  "description": "Personal Android app that detects new videos, generates YouTube metadata with Gemini, and uploads them to a personal YouTube channel.",
+  "scripts": {
+    "sync": "npx cap sync android",
+    "open": "npx cap open android",
+    "build": "npx cap sync android && npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/core": "^6.1.2",
+    "@capacitor/browser": "^6.0.2",
+    "@capacitor/preferences": "^6.0.2",
+    "@capacitor/app": "^6.0.1",
+    "@supabase/supabase-js": "^2.45.4"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.2"
+  }
+}

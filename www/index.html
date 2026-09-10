@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Ajet YouTube Uploader</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app">
+
+    <header class="topbar">
+      <div class="wordmark">AJET<span class="wordmark-sub">uploader</span></div>
+      <button id="channel-chip" class="channel-chip" data-state="unknown">
+        <span class="dot"></span>
+        <span id="channel-chip-label">Checking channel…</span>
+      </button>
+    </header>
+
+    <main id="view-queue" class="view">
+      <section class="pipeline" aria-label="Upload pipeline">
+        <div class="stage" data-stage="pending">
+          <div class="stage-count" id="count-pending">0</div>
+          <div class="stage-label">1. Detected</div>
+        </div>
+        <div class="stage-track"></div>
+        <div class="stage" data-stage="analyzing">
+          <div class="stage-count" id="count-analyzing">0</div>
+          <div class="stage-label">2. Analyzing</div>
+        </div>
+        <div class="stage-track"></div>
+        <div class="stage" data-stage="analyzed">
+          <div class="stage-count" id="count-analyzed">0</div>
+          <div class="stage-label">3. Ready</div>
+        </div>
+        <div class="stage-track"></div>
+        <div class="stage" data-stage="uploading">
+          <div class="stage-count" id="count-uploading">0</div>
+          <div class="stage-label">4. Uploading</div>
+        </div>
+        <div class="stage-track"></div>
+        <div class="stage" data-stage="uploaded">
+          <div class="stage-count" id="count-uploaded">0</div>
+          <div class="stage-label">5. Live</div>
+        </div>
+      </section>
+
+      <section class="queue-list-wrap">
+        <div class="section-head">
+          <h2>Queue</h2>
+          <span id="queue-empty-hint" class="hint">Drop videos into the watched folder to see them here.</span>
+        </div>
+        <ul id="queue-list" class="queue-list"></ul>
+      </section>
+    </main>
+
+    <main id="view-settings" class="view hidden">
+      <section class="panel">
+        <h2>YouTube channel</h2>
+        <p class="panel-copy">Connect once. Uploads then run without asking again.</p>
+        <div id="youtube-connect-row" class="connect-row">
+          <div class="connect-info">
+            <div id="youtube-channel-name" class="connect-name">Not connected</div>
+            <div id="youtube-channel-sub" class="connect-sub">No channel linked yet</div>
+          </div>
+          <button id="btn-connect-youtube" class="btn btn-primary">Connect</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Watched folder</h2>
+        <p class="panel-copy">The app watches this folder on your device for new video files.</p>
+        <div class="field">
+          <label for="input-folder">Folder name</label>
+          <input id="input-folder" type="text" value="Ajet YouTube" />
+        </div>
+        <div class="field-note" id="folder-permission-note">Checking storage permission…</div>
+      </section>
+
+      <section class="panel">
+        <h2>Default visibility</h2>
+        <p class="panel-copy">Applied to every video unless changed per-upload later.</p>
+        <div class="segmented" id="visibility-segmented">
+          <button data-value="private" class="segmented-btn is-active">Private</button>
+          <button data-value="unlisted" class="segmented-btn">Unlisted</button>
+          <button data-value="public" class="segmented-btn">Public</button>
+        </div>
+      </section>
+
+      <button id="btn-save-settings" class="btn btn-primary btn-block">Save settings</button>
+      <div id="settings-saved-note" class="hint hidden">Saved.</div>
+    </main>
+
+    <main id="view-history" class="view hidden">
+      <section class="section-head">
+        <h2>History</h2>
+      </section>
+      <ul id="history-list" class="history-list"></ul>
+    </main>
+
+    <nav class="tabbar">
+      <button class="tab is-active" data-view="queue">
+        <span class="tab-icon">▣</span>
+        <span>Queue</span>
+      </button>
+      <button class="tab" data-view="settings">
+        <span class="tab-icon">◎</span>
+        <span>Settings</span>
+      </button>
+      <button class="tab" data-view="history">
+        <span class="tab-icon">≡</span>
+        <span>History</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

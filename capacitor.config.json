@@ -1,0 +1,9 @@
+{
+  "appId": "com.ajet.youtubeuploader",
+  "appName": "Ajet YouTube Uploader",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "android": {
+    "allowMixedContent": false
+  }
+}
