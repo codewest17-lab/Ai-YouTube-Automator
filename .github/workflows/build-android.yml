@@ -27,7 +27,7 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Install npm dependencies
-        run: npm ci
+        run: npm install
 
       - name: Generate the android/ platform project
         run: |
@@ -92,7 +92,7 @@ jobs:
 
       - name: Install npm dependencies
         if: env.HAVE_SIGNING == 'true'
-        run: npm ci
+        run: npm install
 
       - name: Generate the android/ platform project
         if: env.HAVE_SIGNING == 'true'
