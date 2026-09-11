@@ -64,7 +64,7 @@ public class FolderWatchService extends Service {
     }
 
     private void startWatching(String folderName) {
-        File root = Environment.getExternalStorageDirectory();
+        File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         watchedDir = new File(root, folderName);
         if (!watchedDir.exists()) {
             watchedDir.mkdirs();
