@@ -28,7 +28,6 @@ root = pathlib.Path(sys.argv[1])
 manifest_path = root / "android/app/src/main/AndroidManifest.xml"
 text = manifest_path.read_text()
 
-# Ensure the tools namespace is declared (needed for tools:ignore below).
 if "xmlns:tools=" not in text:
     text = text.replace(
         "<manifest ", '<manifest xmlns:tools="http://schemas.android.com/tools" ', 1
@@ -86,6 +85,44 @@ text = vars_path.read_text()
 text = re.sub(r"minSdkVersion\s*=\s*\d+", "minSdkVersion = 26", text)
 vars_path.write_text(text)
 print("   variables.gradle patched")
+PY
+
+echo "==> Registering FolderWatcherPlugin with the Capacitor bridge in MainActivity.java"
+python3 - "$ROOT_DIR" <<'PY'
+import re, sys, pathlib
+
+root = pathlib.Path(sys.argv[1])
+main_activity = root / "android/app/src/main/java/com/ajet/youtubeuploader/MainActivity.java"
+text = main_activity.read_text()
+
+if "FolderWatcherPlugin" in text:
+    print("   MainActivity.java already registers the plugin")
+else:
+    if "import android.os.Bundle;" not in text:
+        text = re.sub(r"(package [^;]+;\n)", r"\1\nimport android.os.Bundle;\n", text, count=1)
+
+    if re.search(r"public\s+void\s+onCreate\s*\(\s*Bundle", text):
+        text = re.sub(
+            r"(public\s+void\s+onCreate\s*\(\s*Bundle[^)]*\)\s*\{\s*)",
+            r"\1\n    registerPlugin(FolderWatcherPlugin.class);\n",
+            text, count=1
+        )
+    else:
+        onCreate = (
+            "\n  @Override\n"
+            "  public void onCreate(Bundle savedInstanceState) {\n"
+            "    registerPlugin(FolderWatcherPlugin.class);\n"
+            "    super.onCreate(savedInstanceState);\n"
+            "  }\n"
+        )
+        text = re.sub(
+            r"(public class MainActivity extends BridgeActivity\s*\{)",
+            r"\1" + onCreate,
+            text, count=1
+        )
+
+    main_activity.write_text(text)
+    print("   MainActivity.java patched")
 PY
 
 echo "==> Done. android/ now includes the folder-watcher plugin, service, and worker."
