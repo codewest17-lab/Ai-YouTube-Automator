@@ -122,7 +122,7 @@ async function loadHistory() {
 async function loadSettings() {
   const { data, error } = await supabaseClient
     .from("settings")
-    .select("upload_folder, default_visibility, youtube_connected, youtube_channel_title")
+    .select("upload_folder, default_visibility, youtube_connected, youtube_channel_title, drive_folder_id, drive_processed_folder_id")
     .eq("id", 1)
     .single();
 
@@ -132,6 +132,17 @@ async function loadSettings() {
   }
 
   document.getElementById("input-folder").value = data.upload_folder || "Ajet YouTube";
+  document.getElementById("input-drive-folder").value = data.drive_folder_id || "";
+  const driveNote = document.getElementById("drive-folder-note");
+  if (!data.drive_folder_id) {
+    driveNote.textContent = "Not set — paste a folder ID and save to start cloud watching.";
+  } else if (!data.youtube_connected) {
+    driveNote.textContent = "Folder set, but reconnect below first — Drive access needs the same Connect step as YouTube.";
+  } else {
+    driveNote.textContent = data.drive_processed_folder_id
+      ? "Active — checked every 2 minutes. Processed videos move into a \"Processed\" subfolder in Drive."
+      : "Active — checked every 2 minutes.";
+  }
   setVisibilitySegment(data.default_visibility || "private");
   applyChannelState(data.youtube_connected, data.youtube_channel_title);
 }
@@ -170,11 +181,12 @@ document.querySelectorAll("#visibility-segmented .segmented-btn").forEach((btn) 
 
 document.getElementById("btn-save-settings").addEventListener("click", async () => {
   const folder = document.getElementById("input-folder").value.trim() || "Ajet YouTube";
+  const driveFolderId = document.getElementById("input-drive-folder").value.trim();
   const visibility = document.querySelector("#visibility-segmented .segmented-btn.is-active").dataset.value;
 
   const { error } = await supabaseClient
     .from("settings")
-    .update({ upload_folder: folder, default_visibility: visibility })
+    .update({ upload_folder: folder, default_visibility: visibility, drive_folder_id: driveFolderId || null })
     .eq("id", 1);
 
   const note = document.getElementById("settings-saved-note");
@@ -183,7 +195,6 @@ document.getElementById("btn-save-settings").addEventListener("click", async () 
   setTimeout(() => note.classList.add("hidden"), 2000);
 
   if (!error && FolderWatcher) {
-    // Re-point the native watcher at the (possibly new) folder name.
     FolderWatcher.startWatching({ folderName: folder }).catch(console.error);
   }
 });
@@ -198,8 +209,6 @@ document.getElementById("btn-connect-youtube").addEventListener("click", async (
   }
 });
 
-// When the in-app browser closes (user finished, or cancelled, the Google
-// consent flow), re-check settings so the chip/connect card reflect reality.
 if (Browser) {
   Browser.addListener("browserFinished", loadSettings);
 }
@@ -207,7 +216,7 @@ if (App) {
   App.addListener("appStateChange", async ({ isActive }) => {
     if (isActive) {
       await loadSettings();
-      await initFolderWatcher(); // re-check permission + (re)start the watcher on every resume
+      await initFolderWatcher();
     }
   });
 }

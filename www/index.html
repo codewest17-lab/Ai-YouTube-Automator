@@ -68,8 +68,18 @@
       </section>
 
       <section class="panel">
-        <h2>Watched folder</h2>
-        <p class="panel-copy">The app watches this folder on your device for new video files.</p>
+        <h2>Google Drive folder</h2>
+        <p class="panel-copy">Supabase checks this folder every 2 minutes — no need to keep the app or phone running. Drop videos into it from any device.</p>
+        <div class="field">
+          <label for="input-drive-folder">Folder ID (from the folder's Drive URL, the part after <code>/folders/</code>)</label>
+          <input id="input-drive-folder" type="text" placeholder="1AbCDeFGhijklmnop..." />
+        </div>
+        <div class="field-note" id="drive-folder-note"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Watched folder (on this phone)</h2>
+        <p class="panel-copy">Optional now that Drive watching is set up above — the app watches this folder on your device for new video files.</p>
         <div class="field">
           <label for="input-folder">Folder name</label>
           <input id="input-folder" type="text" value="Ajet YouTube" />
