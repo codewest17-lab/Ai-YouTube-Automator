@@ -204,7 +204,12 @@ if (Browser) {
   Browser.addListener("browserFinished", loadSettings);
 }
 if (App) {
-  App.addListener("appStateChange", ({ isActive }) => { if (isActive) loadSettings(); });
+  App.addListener("appStateChange", async ({ isActive }) => {
+    if (isActive) {
+      await loadSettings();
+      await initFolderWatcher(); // re-check permission + (re)start the watcher on every resume
+    }
+  });
 }
 
 // ---------- Native folder watcher bootstrap ----------
@@ -223,8 +228,10 @@ async function initFolderWatcher() {
       note.style.cursor = "pointer";
       note.style.textDecoration = "underline";
     } else {
-      note.textContent = "Storage access granted. Watching for new videos.";
+      note.textContent = "Storage access granted. Watching for new videos (tap to rescan now).";
       const { value: folder } = await Preferences.get({ key: "upload_folder" });
+      note.onclick = () => FolderWatcher.startWatching({ folderName: folder || "Ajet YouTube" });
+      note.style.cursor = "pointer";
       await FolderWatcher.startWatching({ folderName: folder || "Ajet YouTube" });
     }
   } catch (e) {
