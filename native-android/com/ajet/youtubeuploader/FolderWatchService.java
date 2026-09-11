@@ -1,13 +1,5 @@
 package com.ajet.youtubeuploader;
 
-// Copy this file to: android/app/src/main/java/com/ajet/youtubeuploader/FolderWatchService.java
-//
-// A foreground Service keeps running (with a persistent notification, as
-// Android requires) even after the app's web view is closed. It uses
-// FileObserver to catch new video files the moment a write finishes, then
-// hands each one to VideoUploadWorker (WorkManager) so the actual upload
-// survives process death and retries with backoff automatically.
-
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -37,7 +29,7 @@ public class FolderWatchService extends Service {
     public static final String EXTRA_FOLDER_NAME = "folderName";
     private static final String CHANNEL_ID = "ajet_folder_watch";
     private static final int NOTIFICATION_ID = 1001;
-    private static final long SETTLE_DELAY_MS = 2500; // wait for the file write to finish
+    private static final long SETTLE_DELAY_MS = 2500;
 
     private static final Set<String> VIDEO_EXTENSIONS = new HashSet<>();
     static {
@@ -66,6 +58,7 @@ public class FolderWatchService extends Service {
     private void startWatching(String folderName) {
         File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         watchedDir = new File(root, folderName);
+        updateNotification(watchedDir.getAbsolutePath());
         if (!watchedDir.exists()) {
             watchedDir.mkdirs();
         }
@@ -86,8 +79,6 @@ public class FolderWatchService extends Service {
         };
         observer.startWatching();
 
-        // Also do one pass immediately in case videos were already sitting
-        // in the folder before the watcher started (e.g. after a reboot).
         File[] existing = watchedDir.listFiles();
         if (existing != null) {
             for (File f : existing) {
@@ -98,8 +89,6 @@ public class FolderWatchService extends Service {
         }
     }
 
-    /** Debounce: a copy/download can trigger multiple CLOSE_WRITE events; wait
-     *  until the file size is stable for SETTLE_DELAY_MS before queuing it. */
     private void scheduleSettleCheck(String filename) {
         Runnable existing = pendingSettleChecks.get(filename);
         if (existing != null) handler.removeCallbacks(existing);
@@ -130,8 +119,6 @@ public class FolderWatchService extends Service {
         if (alreadyQueued.contains(key)) return;
         alreadyQueued.add(key);
 
-        // A matching thumbnail sits alongside the video as
-        // "<name-without-ext>_thumbnail.jpg" per the app's folder convention.
         String base = stripExtension(videoFile.getName());
         File thumb = new File(watchedDir, base + "_thumbnail.jpg");
 
@@ -159,6 +146,11 @@ public class FolderWatchService extends Service {
     private String stripExtension(String name) {
         int dot = name.lastIndexOf('.');
         return dot > 0 ? name.substring(0, dot) : name;
+    }
+
+    private void updateNotification(String text) {
+        NotificationManager manager = getSystemService(NotificationManager.class);
+        manager.notify(NOTIFICATION_ID, buildNotification("Watching: " + text));
     }
 
     private Notification buildNotification(String text) {

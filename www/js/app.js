@@ -228,11 +228,13 @@ async function initFolderWatcher() {
       note.style.cursor = "pointer";
       note.style.textDecoration = "underline";
     } else {
-      note.textContent = "Storage access granted. Watching for new videos (tap to rescan now).";
       const { value: folder } = await Preferences.get({ key: "upload_folder" });
-      note.onclick = () => FolderWatcher.startWatching({ folderName: folder || "Ajet YouTube" });
+      const result = await FolderWatcher.startWatching({ folderName: folder || "Ajet YouTube" });
+      note.textContent = `Watching: ${result.resolvedPath} (${result.exists ? "folder exists" : "folder does not exist yet"}) — tap to rescan`;
+      note.onclick = () => FolderWatcher.startWatching({ folderName: folder || "Ajet YouTube" }).then((r) => {
+        note.textContent = `Watching: ${r.resolvedPath} (${r.exists ? "folder exists" : "folder does not exist yet"}) — tap to rescan`;
+      });
       note.style.cursor = "pointer";
-      await FolderWatcher.startWatching({ folderName: folder || "Ajet YouTube" });
     }
   } catch (e) {
     console.error("initFolderWatcher failed", e);

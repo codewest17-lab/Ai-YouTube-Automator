@@ -1,16 +1,5 @@
 package com.ajet.youtubeuploader;
 
-// Copy this file to: android/app/src/main/java/com/ajet/youtubeuploader/FolderWatcherPlugin.java
-//
-// Exposes to JS (window.Capacitor.Plugins.FolderWatcher):
-//   hasAllFilesAccess()               -> { granted: boolean }
-//   requestAllFilesAccess()           -> opens the system "All files access" settings screen
-//   startWatching({ folderName })     -> starts the foreground watcher service
-//   stopWatching()                    -> stops it
-//
-// Detection + upload itself happens in FolderWatchService + VideoUploadWorker,
-// so watching keeps running even if the app's web view is closed.
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -33,7 +22,7 @@ public class FolderWatcherPlugin extends Plugin {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             granted = Environment.isExternalStorageManager();
         } else {
-            granted = true; // pre-Android 11 relies on the classic runtime storage permission
+            granted = true;
         }
         ret.put("granted", granted);
         call.resolve(ret);
@@ -59,7 +48,14 @@ public class FolderWatcherPlugin extends Plugin {
         } else {
             getContext().startService(serviceIntent);
         }
-        call.resolve();
+
+        java.io.File root = android.os.Environment.getExternalStoragePublicDirectory(
+            android.os.Environment.DIRECTORY_DOWNLOADS);
+        java.io.File watchedDir = new java.io.File(root, folderName);
+        JSObject ret = new JSObject();
+        ret.put("resolvedPath", watchedDir.getAbsolutePath());
+        ret.put("exists", watchedDir.exists());
+        call.resolve(ret);
     }
 
     @PluginMethod
