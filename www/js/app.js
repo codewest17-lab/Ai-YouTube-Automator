@@ -28,7 +28,7 @@ function setView(name) {
 async function loadQueue() {
   const { data, error } = await supabaseClient
     .from("videos")
-    .select("id, filename, thumbnail_public_url, generated_title, status, created_at")
+    .select("id, filename, thumbnail_public_url, generated_title, hashtags, status, created_at")
     .order("created_at", { ascending: false })
     .limit(100);
 
@@ -56,11 +56,15 @@ function renderQueue(rows) {
   rows.forEach((row) => {
     const li = document.createElement("li");
     li.className = "queue-item";
+    const hashtagsLine = row.hashtags && row.hashtags.length
+      ? `<div class="queue-item-hashtags">${escapeHtml(row.hashtags.join(" "))}</div>`
+      : "";
     li.innerHTML = `
       <img class="queue-item-thumb" src="${row.thumbnail_public_url || ""}" onerror="this.style.visibility='hidden'" />
       <div class="queue-item-body">
         <div class="queue-item-title">${escapeHtml(row.generated_title || row.filename)}</div>
         <div class="queue-item-file">${escapeHtml(row.filename)}</div>
+        ${hashtagsLine}
       </div>
       <span class="status-chip" data-status="${row.status}">${statusLabel(row.status)}</span>
     `;
