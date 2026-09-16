@@ -126,7 +126,7 @@ async function loadHistory() {
 async function loadSettings() {
   const { data, error } = await supabaseClient
     .from("settings")
-    .select("upload_folder, default_visibility, youtube_connected, youtube_channel_title, drive_folder_id, drive_processed_folder_id")
+    .select("upload_folder, default_visibility, youtube_connected, youtube_channel_title, drive_folder_id, drive_processed_folder_id, upload_as_shorts")
     .eq("id", 1)
     .single();
 
@@ -148,12 +148,19 @@ async function loadSettings() {
       : "Active — checked every 2 minutes.";
   }
   setVisibilitySegment(data.default_visibility || "private");
+  setShortsSegment(!!data.upload_as_shorts);
   applyChannelState(data.youtube_connected, data.youtube_channel_title);
 }
 
 function setVisibilitySegment(value) {
   document.querySelectorAll("#visibility-segmented .segmented-btn").forEach((btn) => {
     btn.classList.toggle("is-active", btn.dataset.value === value);
+  });
+}
+
+function setShortsSegment(value) {
+  document.querySelectorAll("#shorts-segmented .segmented-btn").forEach((btn) => {
+    btn.classList.toggle("is-active", btn.dataset.value === String(value));
   });
 }
 
@@ -183,14 +190,19 @@ document.querySelectorAll("#visibility-segmented .segmented-btn").forEach((btn) 
   btn.addEventListener("click", () => setVisibilitySegment(btn.dataset.value));
 });
 
+document.querySelectorAll("#shorts-segmented .segmented-btn").forEach((btn) => {
+  btn.addEventListener("click", () => setShortsSegment(btn.dataset.value === "true"));
+});
+
 document.getElementById("btn-save-settings").addEventListener("click", async () => {
   const folder = document.getElementById("input-folder").value.trim() || "Ajet YouTube";
   const driveFolderId = document.getElementById("input-drive-folder").value.trim();
   const visibility = document.querySelector("#visibility-segmented .segmented-btn.is-active").dataset.value;
+  const uploadAsShorts = document.querySelector("#shorts-segmented .segmented-btn.is-active").dataset.value === "true";
 
   const { error } = await supabaseClient
     .from("settings")
-    .update({ upload_folder: folder, default_visibility: visibility, drive_folder_id: driveFolderId || null })
+    .update({ upload_folder: folder, default_visibility: visibility, drive_folder_id: driveFolderId || null, upload_as_shorts: uploadAsShorts })
     .eq("id", 1);
 
   const note = document.getElementById("settings-saved-note");
