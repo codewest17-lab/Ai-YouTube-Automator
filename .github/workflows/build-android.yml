@@ -24,7 +24,9 @@ jobs:
           java-version: "17"
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
       - name: Install npm dependencies
         run: npm install
@@ -88,7 +90,9 @@ jobs:
 
       - name: Set up Android SDK
         if: env.HAVE_SIGNING == 'true'
-        uses: android-actions/setup-android@v3
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
       - name: Install npm dependencies
         if: env.HAVE_SIGNING == 'true'
