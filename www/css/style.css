@@ -282,6 +282,19 @@ body {
   padding: 10px 12px;
 }
 
+.field textarea {
+  width: 100%;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.field textarea:focus,
 .field input:focus {
   outline: 2px solid var(--signal);
   outline-offset: -1px;

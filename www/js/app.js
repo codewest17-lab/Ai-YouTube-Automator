@@ -126,7 +126,7 @@ async function loadHistory() {
 async function loadSettings() {
   const { data, error } = await supabaseClient
     .from("settings")
-    .select("upload_folder, default_visibility, youtube_connected, youtube_channel_title, drive_folder_id, drive_processed_folder_id, upload_as_shorts")
+    .select("upload_folder, default_visibility, youtube_connected, youtube_channel_title, drive_folder_id, drive_processed_folder_id, upload_as_shorts, extra_links")
     .eq("id", 1)
     .single();
 
@@ -137,6 +137,7 @@ async function loadSettings() {
 
   document.getElementById("input-folder").value = data.upload_folder || "Ajet YouTube";
   document.getElementById("input-drive-folder").value = data.drive_folder_id || "";
+  document.getElementById("input-extra-links").value = data.extra_links || "";
   const driveNote = document.getElementById("drive-folder-note");
   if (!data.drive_folder_id) {
     driveNote.textContent = "Not set — paste a folder ID and save to start cloud watching.";
@@ -199,10 +200,11 @@ document.getElementById("btn-save-settings").addEventListener("click", async () 
   const driveFolderId = document.getElementById("input-drive-folder").value.trim();
   const visibility = document.querySelector("#visibility-segmented .segmented-btn.is-active").dataset.value;
   const uploadAsShorts = document.querySelector("#shorts-segmented .segmented-btn.is-active").dataset.value === "true";
+  const extraLinks = document.getElementById("input-extra-links").value.trim();
 
   const { error } = await supabaseClient
     .from("settings")
-    .update({ upload_folder: folder, default_visibility: visibility, drive_folder_id: driveFolderId || null, upload_as_shorts: uploadAsShorts })
+    .update({ upload_folder: folder, default_visibility: visibility, drive_folder_id: driveFolderId || null, upload_as_shorts: uploadAsShorts, extra_links: extraLinks || null })
     .eq("id", 1);
 
   const note = document.getElementById("settings-saved-note");
